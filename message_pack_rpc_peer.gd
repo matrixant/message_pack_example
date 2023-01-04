@@ -15,10 +15,15 @@ func _on_message_received(msg: Array):
 			pass
 		2:
 			%ClientSide.text += "Client << [Notification] " + str(msg) + "\n"
-	
+
+
+func _on_test_notify(params: Array):
+	print_debug("Test notify received: ", params)
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	msg_rpc.register_notify("test_notify", _on_test_notify)
 	msg_rpc.message_received.connect(_on_message_received)
 	await get_tree().create_timer(1).timeout
 #	Currently only support tcp connection.
@@ -28,7 +33,7 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _physics_process(delta):
 	if Input.is_action_just_pressed("ui_accept"):
-		msg_rpc.async_callv("test", [])
+		msg_rpc.async_callv("test_request", [1, true, {"msg":"Test"}])
 		msg_rpc.notifyv("test", [1.2, 3, true, {"k": null}, cnt])
 		cnt += 1
 	pass

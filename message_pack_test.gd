@@ -4,8 +4,12 @@ extends Control
 var server := TCPServer.new()
 var msg_rpc := MessagePackRPC.new()
 
+func _on_test_request(msgid: int, params: Array):
+	print_debug("Test request received: %s" % str([msgid, params]))
+
 
 func _ready():
+	msg_rpc.register_request("test_request", _on_test_request)
 	msg_rpc.message_received.connect(message_handle)
 	server.listen(12345, "127.0.0.1")
 
@@ -23,11 +27,11 @@ func message_handle(msg: Array):
 			%ServerSide.text += "Server << [Reqest] " + str(msg) + "\n"
 			var time_dict := Time.get_datetime_dict_from_system()
 			msg_rpc.response(msg[1], time_dict)
-			%ServerSide.text += "Server >> [Respose] " + str([1, msg[1], time_dict])
+			%ServerSide.text += "Server >> [Response] " + str([1, msg[1], time_dict])
 		1:
-			%ServerSide.text += "Server << [Respose] " + str(msg) + "\n"
-			pass
+			%ServerSide.text += "Server << [Response] " + str(msg) + "\n"
 		2:
 			%ServerSide.text += "Server << [Notification] " + str(msg) + "\n"
+			msg_rpc.notifyv("test_notify", [1.2, 3, true, {"k": null}])
 	
 	
